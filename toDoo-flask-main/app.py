@@ -127,6 +127,8 @@ def deleteUser():
         return render_template("profile.html", title="User profile", message=msg, user=getUserStats())
 
 
+
+
 @app.route("/markCompleted", methods=['POST'])
 def markCompleted():
     t = request.get_json()
@@ -181,8 +183,8 @@ def about():
 def displayProfile():
     return render_template("profile.html", title="User profile", message="", user=getUserStats())
 
-
 @app.route('/')
+@app.route('/homepage')
 def home():
     if "email" in session:
         usrname = users.find_one({'email': session['email']})['username']
