@@ -6,17 +6,18 @@ import json
 from bson import ObjectId
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
+from passlib.hash import pbkdf2_sha256
 from asyncio import tasks
 
 
 app = Flask(__name__)
-app.secret_key = "pratzz-xjhfjksdk-4u3"
+app.secret_key = "Naj"
 
 app.config["MONGO_URI"] = "mongodb://localhost/todo_list"
 mongo = PyMongo(app)
 users = mongo.db.users
 tasks = mongo.db.tasks
-bcrypt = Bcrypt(app)
+# bcrypt = Bcrypt(app)
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
@@ -30,7 +31,10 @@ def signup():
         user_email = request.form["email"]
         user_name = request.form["usrname"]
         user_password = request.form["passwd"]
-        hashed_password = bcrypt.generate_password_hash(user_password).decode('utf-8')
+        print(user_email)
+        print(user_name)
+        print(user_password)
+        hashed_password = pbkdf2_sha256.encrypt(user_password)
 
         if users.count_documents({'email': user_email}) == 0:
             new_user = {
@@ -53,12 +57,13 @@ def login():
     if request.method == "POST":
         user_email = request.form["email"]
         user_password = request.form["passwd"]
-        
         # check credentials
         x = users.find_one({'email': user_email})
         if x is not None:
-            if x['password'] == user_password:
+            if pbkdf2_sha256.verify(user_password,x['password']):
+            # if bcrypt.check_password_hash(x['password'],'pratzz-xjhfjksdk-4u3'):
                 session["email"] = user_email
+                print(session["email"])
                 return redirect(url_for("home"))
             else:
                 return render_template("login.html", message="Wrong password")
