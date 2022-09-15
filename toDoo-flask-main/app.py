@@ -6,18 +6,17 @@ import json
 from bson import ObjectId
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
-from passlib.hash import pbkdf2_sha256
 from asyncio import tasks
 
 
 app = Flask(__name__)
-app.secret_key = "Naj"
+app.secret_key = "pratzz-xjhfjksdk-4u3"
 
 app.config["MONGO_URI"] = "mongodb://localhost/todo_list"
 mongo = PyMongo(app)
 users = mongo.db.users
 tasks = mongo.db.tasks
-# bcrypt = Bcrypt(app)
+bcrypt = Bcrypt(app)
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
@@ -32,9 +31,8 @@ def signup():
         user_name = request.form["usrname"]
         user_password = request.form["passwd"]
         print(user_email)
-        print(user_name)
         print(user_password)
-        hashed_password = pbkdf2_sha256.encrypt(user_password)
+        hashed_password = bcrypt.generate_password_hash(user_password).decode('utf-8')
 
         if users.count_documents({'email': user_email}) == 0:
             new_user = {
@@ -60,10 +58,9 @@ def login():
         # check credentials
         x = users.find_one({'email': user_email})
         if x is not None:
-            if pbkdf2_sha256.verify(user_password,x['password']):
-            # if bcrypt.check_password_hash(x['password'],'pratzz-xjhfjksdk-4u3'):
+            if bcrypt.check_password_hash(x['password'],user_password):
+            # if x['password'] == user_password:
                 session["email"] = user_email
-                print(session["email"])
                 return redirect(url_for("home"))
             else:
                 return render_template("login.html", message="Wrong password")
@@ -120,7 +117,8 @@ def updatePassword():
 def deleteUser():
     user_password = request.form["passwd"]
     x = users.find_one({'email': session['email']})
-    if x['password'] == user_password:
+    if bcrypt.check_password_hash(x['password'],user_password):
+    # if x['password'] == user_password:
         users.delete_one({'email': session['email']})
         tasks.delete_many({'email': session['email']})
         return redirect(url_for("logout"))
