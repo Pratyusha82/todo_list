@@ -6,6 +6,8 @@ else if (hours >= 11 && hours < 16) msg = "Good afternoon";
 else if (hours >= 16 && hours < 21) msg = "Good evening";
 else msg = "Hi";
 
+
+
 var x = document.getElementById("greeting");
 x.innerText = msg;
 
@@ -25,15 +27,23 @@ function enableAddTasks() {
                     res["id"] +
                     '" type="checkbox"><label for="' +
                     res["id"] +
-                    '"><span class="check"></span><span class="box"></span>' +
+                    '"><span class="check"></span><span class="box"></span>' + 
                     task +
                     "</label></div>";
                 $("#tasks-section").append(new_row);
+                // url: "home";
                 hideForm();
             },
+            
         });
     });
 }
+
+// function addeditbutton(){
+//     const div = document.createElement('div');
+//     div.innerHTML = "new div";
+//     document.getElementById('task-add-button').appendChild(div);   
+// }
 
 function enableLabelClick() {
     $(document).on("click", "label", function () {
@@ -79,6 +89,7 @@ function showForm() {
 }
 
 function hideForm() {
+    document.getElementById()
     $("#my-form").fadeOut(() => {
         $("#newTask").val("");
     });

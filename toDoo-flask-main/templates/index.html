@@ -9,22 +9,35 @@
     {% for task in tasks %}
     <div class="checkbox-animated">
         <input class="checkbox-input" id="{{ task['_id'] }}" type="checkbox">
+        
         <label for="{{ task['_id'] }}">
+           
             <span class="check"></span>
+            
             <span class="box"></span>
-            {{ task['content'] }}
-        </label>
+
+
+            
+            <button  class="btn btn-primary"><a href="{{url_for('updateTasks',id=task['_id'])}}" type="button" style="color: white; font-weight:bold;" >Edit</a></button>
+       
+
+            {{  task['content'] }}
+             </label>
+        <!-- <div style="display: flex;">
+            
+            <input type="text" name="newTask"  style="height: 44px; width:60%; margin-left: 10px;" id="newTask" placeholder="Enter Edit" />
+     
+        </div> -->
     </div>
     {% endfor %}
-
 </div>
 
 <div id="my-form" class="form" style="display: none;">
     <div class="form-group row">
         <div class="col-lg-8">
-            <input type="text" name="newTask" class="form-control" id="newTask" placeholder="Enter your task" required>
+            <input type="text" name="newTask"  id="newTask" placeholder="Enter your task" required>
         </div>
-        <button id="task-add-button" style="margin-right: 1%;" class="btn btn-success">Add</button>
+        <button id="task-add-button" style="margin-right: 1%;" class="btn btn-success"><A HREF=homepage style="text-decoration: none; color:white;">ADD</A></button>
         <button style="margin-right: 1%;" class="btn btn-danger" onclick="hideForm()"><i
                 class="fas fa-times"></i></button>
     </div>
@@ -39,4 +52,5 @@
     data-placement="bottom" title="Mark all as done" onclick="clearAllTasks()"><i class="fas fa-check"></i></button>
 <br><br>
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
 {% endblock %}

@@ -1,0 +1,14 @@
+{% block body %}
+  {% for oldvalues in oldvalues %}
+<div class=" right-panel-active"></div>
+<div class="container__form container--signin" style="margin: top 100px;">
+  <form action="" class="form" id="form4" method="post">
+        <h2 class="form__title">Update Post</h2>
+        <input type="text" name="tasks" value="{{ oldvalues["content"] }}" class="input" />
+        <button class="btn">Post</button>
+ </form>
+</div>
+</div>
+
+{% endfor %}
+{% endblock %}

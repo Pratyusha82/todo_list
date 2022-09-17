@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, request, url_for, redirect
+from flask import Flask, render_template, session, request, url_for, redirect,flash
 from flask.helpers import make_response
 from flask.json import jsonify
 import pymongo
@@ -10,9 +10,8 @@ from asyncio import tasks
 
 
 app = Flask(__name__)
-app.secret_key = "pratzz-xjhfjksdk-4u3"
-
 app.config["MONGO_URI"] = "mongodb://localhost/todo_list"
+app.config['SECRET_KEY'] = 'pushpapratyusha'
 mongo = PyMongo(app)
 users = mongo.db.users
 tasks = mongo.db.tasks
@@ -102,11 +101,12 @@ def updatePassword():
     msg = ""
     x = users.find_one({'email': session['email']})
     user_password = request.form["oldpasswd"]
-    if x['password'] == user_password:
+    if bcrypt.check_password_hash(x['password'],user_password):
+    # if x['password'] == user_password:
         new_password = request.form["newpasswd"]
         users.update_one({'email': session['email']}, {
                          '$set': {'password': new_password}})
-        msg = "Updated password successfully"
+        msg = "updated Password successfully"
     else:
         msg = "Wrong password"
 
@@ -116,15 +116,18 @@ def updatePassword():
 @app.route("/deleteAccount", methods=["POST"])
 def deleteUser():
     user_password = request.form["passwd"]
+    print(user_password)
     x = users.find_one({'email': session['email']})
-    if bcrypt.check_password_hash(x['password'],user_password):
-    # if x['password'] == user_password:
+    print(x['password'])
+    # if bcrypt.check_password_hash(x['password'],user_password):
+    if x['password'] == user_password:
         users.delete_one({'email': session['email']})
         tasks.delete_many({'email': session['email']})
         return redirect(url_for("logout"))
     else:
         msg = "Wrong password. Account deletion failed."
-        return render_template("profile.html", title="User profile", message=msg, user=getUserStats())
+    
+    return render_template("profile.html", title="User profile", message=msg, user=getUserStats())
 
 
 
@@ -161,6 +164,47 @@ def addTask():
     res = make_response(jsonify({'id': str(x.inserted_id)}), 200)
     return res
 
+@app.route("/UpdateTasks/<id>",methods=['GET','POST'])
+def updateTasks(id):
+        # if request.method=='GET':
+        #     # update = tasks.find({'_id':ObjectId(id)})
+        #     updateu = tasks.find({'_id':ObjectId(id)})
+        #     oldvalues = []
+        #     for i in updateu:
+        #         print(i)
+        #         oldvalues.append(i)
+        # if request.method=='POST':
+        #     tasks= request.form['tasks']
+        #     # db.note.update_one({'_id':ObjectId(id)},{'$set':{'title':title,'note':note}})
+        #         # user = db.find_one({'email':uemail},{'_id':0,'name':1})
+        #     tasks.delete_many({'_id':ObjectId(id)})
+        #     insertnewta = tasks.insert_one({
+        #     'tasks':tasks
+        #     })
+        #     tasksd=tasks.find({})
+        #     tasksl=[]
+        #     for i in tasksd:
+        #         tasksl.append(i)
+        #     flash(f'Post updated succesfully','success')
+        #     return render_template('index.html',tasks=tasksl)
+        # return render_template("update.html",posts=oldvalues)
+
+    if session["email"]:
+        if request.method == "GET":
+            updateu = tasks.find({'_id':ObjectId(id)})
+            oldvalues = []
+            for i in updateu:
+                print(i)
+                oldvalues.append(i)
+
+        if request.method == "POST":
+            ta= request.form['tasks']
+            tasks.update_one({"_id" : ObjectId(id)}, {'$set' : {"content": ta}})
+            flash(f'Post updated succesfully','success')
+            return redirect("/homepage")
+        return render_template("update.html",oldvalues=oldvalues)
+    else:
+        return redirect("/login")
 
 @app.route("/completed")
 def getCompletedTasks():
@@ -184,7 +228,7 @@ def displayProfile():
     return render_template("profile.html", title="User profile", message="", user=getUserStats())
 
 @app.route('/')
-@app.route('/homepage')
+@app.route('/homepage',methods=['GET','POST'])
 def home():
     if "email" in session:
         usrname = users.find_one({'email': session['email']})['username']
@@ -196,6 +240,8 @@ def home():
         return render_template("index.html", title="My home", user=usrname, tasks=usr_active_tasks)
     else:
         return redirect(url_for("login"))
+
+
 
 
 if __name__ == '__main__':
