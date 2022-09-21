@@ -23,7 +23,10 @@
                 <div class="form-group">
                     <label for="exampleInputPassword1">Password</label>
                     <input type="password" name="passwd" class="form-control" id="exampleInputPassword1"
-                        placeholder="Password" />
+                        placeholder="Password" placeholder="Password" 
+                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                            title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
+                             required />
                 </div>
                 <br><br>
                 <button class="btn btn-success" type="submit">Sign up</button>

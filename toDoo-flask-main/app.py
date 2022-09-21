@@ -23,6 +23,8 @@ class JSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
+
+
 @app. route("/signup", methods=["POST", "GET"])
 def signup():
     if request.method == "POST":
